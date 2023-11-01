@@ -1,0 +1,35 @@
+spring:
+  application:
+    name: SPRING-BATCH
+  sql:
+    init:
+      mode: always
+  datasource:
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: postgres
+    password: pedro
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: false
+    hibernate:
+      ddl-auto: update
+
+  kafka:
+    template:
+      default-topic: REGISTRO_EVENTO
+    bootstrap-servers:
+      - ${SERVER_KAFKA}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.IntegerSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      batch-size:  10
+
+
+logging:
+  pattern:
+    level: "[${spring.application.name},%X{traceId:-},%X{spanId:-}]"
+
+management:
+  tracing:
+    sampling:
+      probability: 1.0
