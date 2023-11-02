@@ -29,6 +29,6 @@ public class ControllerRequest {
 				public  void  executarJod() throws JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, JobParametersInvalidException, JobRestartException {
 								log.info("Requisitando execucao");
 								JobParameters parameters = new JobParameters();
-								launcher.run(job.iniciarOsTrabalhos(), parameters);
+								launcher.run(job.job(), parameters);
 				}
 }
