@@ -1,8 +1,8 @@
 package br.com.learn.batch.release.job;
 
 import br.com.learn.batch.release.domain.Autor;
-import br.com.learn.batch.release.domain.Registro;
-import br.com.learn.batch.release.repository.RegistroRepository;
+
+import br.com.learn.batch.release.repository.AutorRepository;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.batch.core.*;
 import org.springframework.batch.core.job.builder.JobBuilder;
@@ -14,13 +14,9 @@ import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.data.builder.RepositoryItemReaderBuilder;
 import org.springframework.batch.item.database.ItemPreparedStatementSetter;
 import org.springframework.batch.item.database.builder.JdbcBatchItemWriterBuilder;
-import org.springframework.batch.item.database.builder.JpaCursorItemReaderBuilder;
-import org.springframework.batch.item.kafka.builder.KafkaItemWriterBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.task.SimpleAsyncTaskExecutor;
-import org.springframework.core.task.TaskExecutor;
 import org.springframework.data.domain.Sort;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -28,8 +24,6 @@ import org.springframework.transaction.PlatformTransactionManager;
 import jakarta.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
 
 @Log4j2
 @Configuration
@@ -38,27 +32,24 @@ public class Jobz {
 				private final JobRepository jobRepository;
 
 				private final PlatformTransactionManager transactionManager;
-				private final RegistroRepository registroRepository;
-
-				private final EntityManagerFactory entityManagerFactory;
+				private final AutorRepository autorRepostory;
 
 				private final DataSource dataSource;
 
 				private final KafkaTemplate<Integer,String> kafkaTemplate;
 
 				@Autowired
-				public Jobz(JobRepository jobRepository, PlatformTransactionManager transactionManager, RegistroRepository registroRepository, EntityManagerFactory entityManagerFactory, DataSource dataSource, KafkaTemplate<Integer, String> kafkaTemplate) {
+				public Jobz(JobRepository jobRepository, PlatformTransactionManager transactionManager, AutorRepository autorRepostory, DataSource dataSource, KafkaTemplate<Integer, String> kafkaTemplate) {
 								this.jobRepository = jobRepository;
 								this.transactionManager = transactionManager;
-								this.registroRepository = registroRepository;
-								this.entityManagerFactory = entityManagerFactory;
+								this.autorRepostory = autorRepostory;
 								this.dataSource = dataSource;
 								this.kafkaTemplate = kafkaTemplate;
 				}
 
 
-				@Bean(name = "iniciarOsTrabalhos")
-				public Job iniciarOsTrabalhos(){
+				@Bean
+				public Job job(){
 								return new JobBuilder("iniciar-trabalhos",jobRepository)
 																.start(primeiroPasso())
 																.build();
@@ -77,32 +68,19 @@ public class Jobz {
 				}
 
 
-				private ItemReader<Registro> itemReader(){
-								HashMap<String, Sort.Direction>  ordered =  new HashMap<>();
-								ordered.put("id",Sort.Direction.ASC);
-							return new	RepositoryItemReaderBuilder<Registro>()
-															.name("name-item-reader")
-															.repository(registroRepository)
-															.methodName("findByIdGreaterThan")
-															.arguments(1)
-															.sorts(ordered)
-															.pageSize(50)
-															.build();
-
-				}
-
-
 				@Bean
 				public ItemReader<Autor> itemReaderAutor(){
-								Map<String,Object> parameters = new HashMap<>();
-								parameters.put("igual",31);
-								return new JpaCursorItemReaderBuilder<Autor>()
-																.name("busca-autor")
-																.entityManagerFactory(entityManagerFactory)
-																.queryString("SELECT  a FROM Autor a")
+								HashMap<String, Sort.Direction>  ordered =  new HashMap<>();
+								ordered.put("id",Sort.Direction.ASC);
+								return new RepositoryItemReaderBuilder<Autor>()
+																.name("buscar-todos")
+																.repository(autorRepostory)
+																.methodName("findAll")
+																.sorts(ordered)
+																.pageSize(10)
 																.build();
-				}
 
+				}
 
 				@Bean
 				public ItemWriter<String> itemWriterAutor(){
