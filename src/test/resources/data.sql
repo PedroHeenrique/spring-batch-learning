@@ -1,27 +1,7 @@
 INSERT INTO registro (name) VALUES ('Pedro');
 INSERT INTO registro (name) VALUES('Henrique');
 INSERT INTO registro (name) VALUES ('dos');
-INSERT INTO registro (name) VALUES('santos');
-INSERT INTO registro (name) VALUES ('Ferreira');
-INSERT INTO registro (name) VALUES('Daiani');
-INSERT INTO registro (name) VALUES ('meilhani');
-INSERT INTO registro (name) VALUES('santos');
-INSERT INTO registro (name) VALUES ('ferreira');
-INSERT INTO registro (name) VALUES('qual');
-INSERT INTO registro (name) VALUES ('quuer');
-INSERT INTO registro (name) VALUES('nome');
-INSERT INTO registro (name) VALUES ('Pe');
-INSERT INTO registro (name) VALUES('He');
-INSERT INTO registro (name) VALUES ('do');
-INSERT INTO registro (name) VALUES('sas');
-INSERT INTO registro (name) VALUES ('Ferr');
-INSERT INTO registro (name) VALUES('Dani');
-INSERT INTO registro (name) VALUES ('mehani');
-INSERT INTO registro (name) VALUES('sos');
-INSERT INTO registro (name) VALUES ('feeia');
-INSERT INTO registro (name) VALUES('al');
-INSERT INTO registro (name) VALUES ('2333');
-INSERT INTO registro (name) VALUES('twerfgds');
+
 
 INSERT INTO AUTOR (id,title,autor,idade) VALUES (1,'OCP17','Katty Sierra',37);
 INSERT INTO AUTOR (id,title,autor,idade) VALUES (2,'OCP11','Sierra',34);
