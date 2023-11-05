@@ -1,7 +1,7 @@
-package br.com.learn.batch.release;
+package br.com.learn.batch;
 
 
-import br.com.learn.batch.release.job.Jobz;
+import br.com.learn.batch.job.Jobz;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersInvalidException;

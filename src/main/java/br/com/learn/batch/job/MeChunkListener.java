@@ -1,4 +1,4 @@
-package br.com.learn.batch.release.job;
+package br.com.learn.batch.job;
 
 import lombok.extern.log4j.Log4j2;
 import org.springframework.batch.core.ChunkListener;

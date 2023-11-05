@@ -1,13 +1,13 @@
-package br.com.learn.batch.release;
+package br.com.learn.batch;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class ReleaseApplication {
+public class BatchApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(ReleaseApplication.class, args);
+		SpringApplication.run(BatchApplication.class, args);
 	}
 
 

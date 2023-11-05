@@ -1,17 +1,12 @@
-package br.com.learn.batch.release.job;
+package br.com.learn.batch.job;
 
-import br.com.learn.batch.release.domain.Autor;
+import br.com.learn.batch.domain.Autor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.batch.core.ItemReadListener;
 
 
 @Log4j2
-public class MeListener implements ItemReadListener<Autor> {
-
-				@Override
-				public void beforeRead() {
-
-				}
+public class MeReaderListener implements ItemReadListener<Autor> {
 
 				@Override
 				public void afterRead(Autor item){

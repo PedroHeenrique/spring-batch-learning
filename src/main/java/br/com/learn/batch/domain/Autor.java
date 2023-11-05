@@ -1,4 +1,4 @@
-package br.com.learn.batch.release.domain;
+package br.com.learn.batch.domain;
 
 
 import lombok.*;

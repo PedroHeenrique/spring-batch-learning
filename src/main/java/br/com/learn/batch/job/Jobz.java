@@ -1,8 +1,10 @@
-package br.com.learn.batch.release.job;
+package br.com.learn.batch.job;
 
-import br.com.learn.batch.release.domain.Autor;
+import br.com.learn.batch.domain.Autor;
+import br.com.learn.batch.domain.Registro;
 
-import br.com.learn.batch.release.repository.AutorRepository;
+import br.com.learn.batch.repository.AutorRepository;
+import br.com.learn.batch.repository.RegistroRepository;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.batch.core.*;
 import org.springframework.batch.core.job.builder.JobBuilder;
@@ -12,17 +14,13 @@ import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.data.builder.RepositoryItemReaderBuilder;
-import org.springframework.batch.item.database.ItemPreparedStatementSetter;
-import org.springframework.batch.item.database.builder.JdbcBatchItemWriterBuilder;
+import org.springframework.batch.item.data.builder.RepositoryItemWriterBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.Sort;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.transaction.PlatformTransactionManager;
 
-import jakarta.persistence.EntityManagerFactory;
-import javax.sql.DataSource;
 import java.util.HashMap;
 
 @Log4j2
@@ -32,19 +30,18 @@ public class Jobz {
 				private final JobRepository jobRepository;
 
 				private final PlatformTransactionManager transactionManager;
-				private final AutorRepository autorRepostory;
+				private final AutorRepository autorRepository;
 
-				private final DataSource dataSource;
+				private final RegistroRepository registroRepository;
 
-				private final KafkaTemplate<Integer,String> kafkaTemplate;
 
 				@Autowired
-				public Jobz(JobRepository jobRepository, PlatformTransactionManager transactionManager, AutorRepository autorRepostory, DataSource dataSource, KafkaTemplate<Integer, String> kafkaTemplate) {
+				public Jobz(JobRepository jobRepository, PlatformTransactionManager transactionManager, AutorRepository autorRepository, RegistroRepository registroRepository) {
 								this.jobRepository = jobRepository;
 								this.transactionManager = transactionManager;
-								this.autorRepostory = autorRepostory;
-								this.dataSource = dataSource;
-								this.kafkaTemplate = kafkaTemplate;
+								this.autorRepository = autorRepository;
+								this.registroRepository = registroRepository;
+
 				}
 
 
@@ -59,11 +56,17 @@ public class Jobz {
 				@Bean
 				public Step primeiroPasso(){
 								return new StepBuilder("primeiro-passo",jobRepository)
-																.<Autor,Autor>chunk(10,transactionManager)
+																.<Autor, Registro>chunk(10,transactionManager)
 																.reader(itemReaderAutor())
-																.listener(new MeListener())
+																.listener(new MeReaderListener())
+																.processor(itemProcessor())
+																.listener(new MeProcessorListener())
   														.writer(itemWriter())
                 .listener(new MeChunkListener())
+																.faultTolerant()
+																.skip(RuntimeException.class)
+																.skipLimit(100)
+																.allowStartIfComplete(true)
 																.build();
 				}
 
@@ -74,12 +77,20 @@ public class Jobz {
 								ordered.put("id",Sort.Direction.ASC);
 								return new RepositoryItemReaderBuilder<Autor>()
 																.name("buscar-todos")
-																.repository(autorRepostory)
+																.repository(autorRepository)
 																.methodName("findAll")
 																.sorts(ordered)
 																.pageSize(10)
 																.build();
 
+				}
+
+				@Bean
+				public ItemWriter<Registro>itemWriter(){
+       return new RepositoryItemWriterBuilder<Registro>()
+								       .repository(registroRepository)
+								       .methodName("save")
+								       .build();
 				}
 
 				@Bean
@@ -93,23 +104,12 @@ public class Jobz {
 				}
 
 				@Bean
-				public ItemProcessor<Autor,String> itemProcessor(){
-								return Autor::toString;
+				public ItemProcessor<Autor,Registro> itemProcessor(){
+								return (autor -> autor.getTitle().startsWith("OC") ?
+																Registro.builder()
+																.autor(autor)
+																.name(autor.getAutor())
+																.build() : null);
 				}
 
-				@Bean
-				public ItemWriter<Autor> itemWriter(){
-
-								ItemPreparedStatementSetter<Autor>  preparedStatementSetter = (item, ps) -> {
-									  ps.setString(1,item.getAutor());
-
-								};
-
-								return new JdbcBatchItemWriterBuilder<Autor>()
-															 .dataSource(dataSource)
-																.itemPreparedStatementSetter(preparedStatementSetter)
-															 .sql("INSERT INTO  RESULT_PROCESS (result) VALUES  (?)")
-																.build();
-
-				}
 }
